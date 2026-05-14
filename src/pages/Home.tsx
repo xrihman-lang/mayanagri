@@ -1,12 +1,23 @@
 import { motion } from "motion/react";
 import { useEffect, useState } from 'react';
 import { db } from '../lib/firebase';
-import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, addDoc } from 'firebase/firestore';
+import ProjectCard from '../components/ProjectCard';
 
 export default function Home() {
   const [liveStatus, setLiveStatus] = useState('Loading...');
   const [liveStatusMediaUrl, setLiveStatusMediaUrl] = useState('');
   const [projects, setProjects] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const updateMousePosition = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', updateMousePosition);
+    return () => window.removeEventListener('mousemove', updateMousePosition);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,11 +38,18 @@ export default function Home() {
     fetchData();
   }, []);
 
-  const websites = projects.filter(p => !p.type || p.type === 'website');
-  const apps = projects.filter(p => p.type === 'app');
+  const websites = projects.filter(p => (!p.type || p.type === 'website') && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.description?.toLowerCase().includes(searchQuery.toLowerCase())));
+  const apps = projects.filter(p => p.type === 'app' && (!searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.description?.toLowerCase().includes(searchQuery.toLowerCase())));
 
   return (
     <div className="min-h-screen bg-[#060606] text-white font-sans flex flex-col relative overflow-x-hidden">
+      {/* Dynamic Mouse Follower */}
+      <motion.div 
+        className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-300 hidden md:block"
+        animate={{
+          background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(212,175,55,0.03), transparent 40%)`
+        }}
+      />
       {/* Background elements */}
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_-20%,#2a200a_0%,transparent_70%)] opacity-40 z-0 pointer-events-none"></div>
       
@@ -49,7 +67,7 @@ export default function Home() {
 
       {/* Hero Viewport */}
       <div className="min-h-screen flex flex-col p-8 relative z-10 w-full max-w-[1600px] mx-auto">
-        <nav className="flex justify-between items-center mb-12">
+        <nav className="flex justify-between items-center mb-8 relative z-20">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#D4AF37] to-[#FFD56B]"></div>
             <span className="text-[11px] uppercase tracking-[0.3em] font-medium text-[#D4AF37]">Studio MN</span>
@@ -61,29 +79,102 @@ export default function Home() {
           </div>
         </nav>
 
-        <div className="flex flex-1 gap-8 relative items-stretch">
-          <aside className="w-72 flex flex-col space-y-4">
-            <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex-1 flex flex-col sticky top-8 h-[calc(100vh-8rem)]">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-[10px] font-bold text-[#D4AF37] tracking-[0.2em] uppercase">Live Status</h3>
-                <div className="w-2 h-2 rounded-full bg-[#D4AF37] shadow-[0_0_8px_#D4AF37] animate-pulse"></div>
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1 }}
+          className="max-w-xl mx-auto w-full mb-12 relative z-50"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-[#D4AF37] to-[#FFD56B] rounded-full blur opacity-5 group-focus-within:opacity-20 transition duration-500"></div>
+          <div className="relative group">
+            <input
+              type="text"
+              placeholder="Search websites, projects, AI tools..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="relative w-full bg-white/5 backdrop-blur-xl border border-white/10 text-white placeholder-white/40 px-6 py-3.5 rounded-full text-sm outline-none focus:border-[#D4AF37]/50 transition-colors shadow-lg"
+            />
+            <svg className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-[#D4AF37] transition-colors pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            
+            {searchQuery.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 max-h-[300px] overflow-y-auto custom-scrollbar">
+                {(websites.length === 0 && apps.length === 0) ? (
+                  <div className="p-4 text-center text-white/50 text-sm">No matches found for "{searchQuery}"</div>
+                ) : (
+                  <ul>
+                    {/* Combine websites and apps for the dropdown, taking top 5 or so, or all of them */}
+                    {[...websites, ...apps].map((p) => {
+                      let href = p.link || '#';
+                      if (href !== '#' && !href.startsWith('http') && !href.startsWith('/')) href = 'https://' + href;
+                      return (
+                        <li key={p.id}>
+                          <a 
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-4 p-4 hover:bg-white/5 transition-colors border-b border-white/5 last:border-0"
+                          >
+                            <div className="w-10 h-10 rounded-md overflow-hidden bg-black/50 shrink-0 border border-white/10">
+                              {(p.image && p.image.toLowerCase().includes('.mp4')) ? (
+                                <video src={p.image} className="w-full h-full object-cover" muted playsInline />
+                              ) : (
+                                <img src={p.image || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80'} alt="" className="w-full h-full object-cover" />
+                              )}
+                            </div>
+                            <div>
+                              <h4 className="text-[#D4AF37] font-medium text-sm">{p.name}</h4>
+                              <p className="text-white/50 text-xs truncate max-w-[200px] sm:max-w-[400px]">{p.description}</p>
+                            </div>
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </div>
-              <div className="space-y-6 flex-1 overflow-y-auto overflow-x-hidden opacity-80 custom-scrollbar pr-2">
+            )}
+          </div>
+        </motion.div>
+
+        <div className="flex flex-1 gap-12 relative items-stretch">
+          <aside className="w-[340px] hidden lg:flex flex-col space-y-4 z-20">
+            <motion.div 
+              whileHover={{ scale: 1.02, boxShadow: "0 0 40px rgba(212,175,55,0.15)" }}
+              className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex-1 flex flex-col sticky top-8 h-[calc(100vh-8rem)] transition-all duration-300"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-[12px] font-bold text-[#D4AF37] tracking-[0.2em] uppercase">MAYA AI</h3>
+                <div className="w-2 h-2 rounded-full bg-[#D4AF37] shadow-[0_0_10px_#D4AF37] animate-pulse"></div>
+              </div>
+              <div className="space-y-6 flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pr-2">
                 <div className="border-l-2 border-[#D4AF37]/30 pl-4 py-1">
                   {liveStatusMediaUrl && (
                     liveStatusMediaUrl.toLowerCase().includes('.mp4') ? (
-                      <video src={liveStatusMediaUrl} autoPlay loop muted playsInline className="w-full aspect-video object-cover mb-4 rounded-lg shadow-lg border border-white/5" />
+                      <video src={liveStatusMediaUrl} autoPlay loop muted playsInline className="w-full aspect-video object-cover mb-4 rounded-lg shadow-[0_0_15px_rgba(212,175,55,0.1)] border border-white/5" />
                     ) : (
-                      <img src={liveStatusMediaUrl} alt="Live Status" className="w-full aspect-video object-cover mb-4 rounded-lg shadow-lg border border-white/5" onError={(e) => e.currentTarget.style.display = 'none'} />
+                      <img src={liveStatusMediaUrl} alt="MAYA AI Status" className="w-full aspect-video object-cover mb-4 rounded-lg shadow-[0_0_15px_rgba(212,175,55,0.1)] border border-white/5" onError={(e) => e.currentTarget.style.display = 'none'} />
                     )
                   )}
-                  <p className="text-[12px] leading-relaxed text-white/90">{liveStatus}</p>
+                  <h4 className="text-white font-medium text-lg mb-1">Smart Voice Assistant</h4>
+                  <p className="text-[13px] leading-relaxed text-white/70 mb-4">
+                    MAYA AI is a next-generation voice assistant built for real-time conversations, creativity, and productivity.
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {['Real-Time AI', 'Voice Assistant', 'Fast Response', 'Creative Tools'].map(chip => (
+                      <span key={chip} className="text-[10px] uppercase tracking-wider px-2 py-1 bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20 rounded-full">
+                        • {chip}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-[12px] leading-relaxed text-[#D4AF37]/90 italic">{liveStatus}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </aside>
 
-          <main className="flex-1 flex flex-col justify-center gap-8 px-12">
+          <main className="flex-1 flex flex-col justify-center gap-8 px-4 md:px-12 z-20">
             <section className="relative transition-transform duration-1000 ease-out hover:scale-105" style={{ transformOrigin: "left center" }}>
               <motion.h2 
                 initial={{ opacity: 0, y: 20 }}
@@ -158,7 +249,7 @@ export default function Home() {
               <h3 className="text-3xl font-serif text-white tracking-widest">FEATURED <span className="text-[#D4AF37]">WEBSITES</span></h3>
               <div className="h-px flex-1 bg-gradient-to-r from-[#D4AF37]/50 to-transparent"></div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {websites.map((p) => (
                 <ProjectCard key={p.id} project={p} />
               ))}
@@ -172,7 +263,7 @@ export default function Home() {
               <h3 className="text-3xl font-serif text-white tracking-widest">PREMIUM <span className="text-[#D4AF37]">APPS</span></h3>
               <div className="h-px flex-1 bg-gradient-to-r from-[#D4AF37]/50 to-transparent"></div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {apps.map((p) => (
                 <ProjectCard key={p.id} project={p} />
               ))}
@@ -181,43 +272,5 @@ export default function Home() {
         )}
       </div>
     </div>
-  );
-}
-
-function ProjectCard({ project }: { project: any }) {
-  const isVideo = project.image && project.image.toLowerCase().includes('.mp4');
-  const validImage = project.image || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80';
-  
-  // Ensure the link is absolute if it's meant to be external and doesn't start with /
-  let href = project.link || '#';
-  if (href !== '#' && !href.startsWith('http') && !href.startsWith('/')) {
-    href = 'https://' + href;
-  }
-
-  return (
-    <motion.a 
-      href={href} 
-      target="_blank" 
-      rel="noopener noreferrer"
-      whileHover={{ y: -10, boxShadow: "0 20px 40px rgba(0,0,0,0.5)" }}
-      className="group block bg-white/[0.02] border border-white/10 hover:border-[#D4AF37]/50 rounded-2xl overflow-hidden transition-all duration-500 backdrop-blur-sm"
-    >
-      <div className="relative aspect-video overflow-hidden bg-black/50">
-        {isVideo ? (
-          <video src={project.image} autoPlay loop muted playsInline className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105" />
-        ) : (
-          <img src={validImage} alt={project.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-500 group-hover:scale-105" onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80' }} />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#060606] via-transparent to-transparent opacity-80"></div>
-      </div>
-      <div className="p-6 relative">
-        <h4 className="text-xl font-medium text-white mb-2 group-hover:text-[#D4AF37] transition-colors">{project.name}</h4>
-        <p className="text-sm text-white/50 line-clamp-2 leading-relaxed">{project.description || 'A Maya Nagri digital ecosystem product.'}</p>
-        <div className="mt-6 flex items-center gap-2 text-[10px] uppercase tracking-widest text-[#D4AF37] font-bold opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-10px] group-hover:translate-x-0 duration-300">
-          <span>Explore Link</span>
-          <span>→</span>
-        </div>
-      </div>
-    </motion.a>
   );
 }
