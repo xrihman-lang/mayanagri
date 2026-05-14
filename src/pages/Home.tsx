@@ -71,10 +71,10 @@ export default function Home() {
               <div className="space-y-6 flex-1 overflow-y-auto overflow-x-hidden opacity-80 custom-scrollbar pr-2">
                 <div className="border-l-2 border-[#D4AF37]/30 pl-4 py-1">
                   {liveStatusMediaUrl && (
-                    liveStatusMediaUrl.toLowerCase().endsWith('.mp4') ? (
-                      <video src={liveStatusMediaUrl} autoPlay loop muted playsInline className="w-full h-auto mb-4 rounded-lg shadow-lg border border-white/5" />
+                    liveStatusMediaUrl.toLowerCase().includes('.mp4') ? (
+                      <video src={liveStatusMediaUrl} autoPlay loop muted playsInline className="w-full aspect-video object-cover mb-4 rounded-lg shadow-lg border border-white/5" />
                     ) : (
-                      <img src={liveStatusMediaUrl} alt="Live Status" className="w-full h-auto mb-4 rounded-lg shadow-lg border border-white/5" />
+                      <img src={liveStatusMediaUrl} alt="Live Status" className="w-full aspect-video object-cover mb-4 rounded-lg shadow-lg border border-white/5" onError={(e) => e.currentTarget.style.display = 'none'} />
                     )
                   )}
                   <p className="text-[12px] leading-relaxed text-white/90">{liveStatus}</p>
@@ -185,19 +185,28 @@ export default function Home() {
 }
 
 function ProjectCard({ project }: { project: any }) {
+  const isVideo = project.image && project.image.toLowerCase().includes('.mp4');
+  const validImage = project.image || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80';
+  
+  // Ensure the link is absolute if it's meant to be external and doesn't start with /
+  let href = project.link || '#';
+  if (href !== '#' && !href.startsWith('http') && !href.startsWith('/')) {
+    href = 'https://' + href;
+  }
+
   return (
     <motion.a 
-      href={project.link} 
+      href={href} 
       target="_blank" 
       rel="noopener noreferrer"
       whileHover={{ y: -10, boxShadow: "0 20px 40px rgba(0,0,0,0.5)" }}
       className="group block bg-white/[0.02] border border-white/10 hover:border-[#D4AF37]/50 rounded-2xl overflow-hidden transition-all duration-500 backdrop-blur-sm"
     >
       <div className="relative aspect-video overflow-hidden bg-black/50">
-        {project.image && project.image.toLowerCase().endsWith('.mp4') ? (
+        {isVideo ? (
           <video src={project.image} autoPlay loop muted playsInline className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105" />
         ) : (
-          <img src={project.image || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80'} alt={project.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-500 group-hover:scale-105" />
+          <img src={validImage} alt={project.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-500 group-hover:scale-105" onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80' }} />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-[#060606] via-transparent to-transparent opacity-80"></div>
       </div>
