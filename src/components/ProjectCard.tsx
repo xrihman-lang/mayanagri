@@ -57,7 +57,7 @@ export default function ProjectCard({ project }: { project: any }) {
       </div>
       <div className="p-6 relative">
         <h4 className="text-xl font-medium text-white mb-2 transition-colors">{project.name}</h4>
-        <p className="text-sm text-white/50 line-clamp-2 leading-relaxed">{project.description || 'A Maya Nagri digital ecosystem product.'}</p>
+        <p className="text-sm text-white/50 leading-relaxed">{project.description || 'A Maya Nagri digital ecosystem product.'}</p>
         <div className="mt-6 flex flex-row items-center justify-between">
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-[#D4AF37] font-bold opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-10px] group-hover:translate-x-0 duration-300">
             <span>Explore Link</span>
