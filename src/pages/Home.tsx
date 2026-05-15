@@ -10,6 +10,7 @@ export default function Home() {
   const [projects, setProjects] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const updateMousePosition = (e: MouseEvent) => {
@@ -60,23 +61,52 @@ export default function Home() {
         transition={{ delay: 2, duration: 1 }}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black pointer-events-none"
       >
-        <h1 className="text-6xl font-serif font-bold text-transparent bg-clip-text bg-linear-to-r from-[#D4AF37] to-[#FFD56B]">
+        <h1 className="text-4xl md:text-6xl font-serif font-bold text-transparent bg-clip-text bg-linear-to-r from-[#D4AF37] to-[#FFD56B]">
           MAYA NAGRI
         </h1>
       </motion.div>
 
       {/* Hero Viewport */}
       <div className="min-h-screen flex flex-col p-8 relative z-10 w-full max-w-[1600px] mx-auto">
-        <nav className="flex justify-between items-center mb-8 relative z-20">
+        <nav className="flex justify-between items-center mb-8 relative z-50">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#D4AF37] to-[#FFD56B]"></div>
             <span className="text-[11px] uppercase tracking-[0.3em] font-medium text-[#D4AF37]">Studio MN</span>
           </div>
-          <div className="flex items-center space-x-8 text-[11px] uppercase tracking-[0.2em] text-white/50 font-semibold">
+
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center space-x-8 text-[11px] uppercase tracking-[0.2em] text-white/50 font-semibold">
             <a href="/" className="text-white border-b border-[#D4AF37] pb-1">Home</a>
             <a href="/showcase" className="hover:text-white transition-colors">Showcase</a>
             <a href="/login" className="hover:text-white transition-colors">Admin</a>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden p-2 text-[#D4AF37] focus:outline-none"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {isMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+
+          {/* Mobile Menu Overlay */}
+          {isMenuOpen && (
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute top-full left-0 right-0 mt-4 bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex flex-col space-y-4 md:hidden z-50 shadow-2xl"
+            >
+              <a href="/" className="text-[#D4AF37] text-sm font-bold uppercase tracking-widest">Home</a>
+              <a href="/showcase" className="text-white/70 text-sm font-bold uppercase tracking-widest hover:text-[#D4AF37]">Showcase</a>
+              <a href="/login" className="text-white/70 text-sm font-bold uppercase tracking-widest hover:text-[#D4AF37]">Admin</a>
+            </motion.div>
+          )}
         </nav>
 
         <motion.div 
@@ -138,48 +168,50 @@ export default function Home() {
           </div>
         </motion.div>
 
-        <div className="flex flex-1 gap-12 relative items-stretch">
-          <aside className="w-[340px] hidden lg:flex flex-col space-y-4 z-20">
+        <div className="flex flex-1 flex-col lg:flex-row gap-8 md:gap-12 relative items-stretch">
+          <aside className="w-full lg:w-[340px] flex flex-col space-y-4 z-20">
             <motion.div 
-              whileHover={{ scale: 1.02, boxShadow: "0 0 40px rgba(212,175,55,0.15)" }}
-              className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex-1 flex flex-col sticky top-8 h-[calc(100vh-8rem)] transition-all duration-300"
+              whileHover={{ scale: 1.01, boxShadow: "0 0 40px rgba(212,175,55,0.15)" }}
+              className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex-1 flex flex-col sticky top-8 lg:h-[calc(100vh-8rem)] transition-all duration-300"
             >
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-[12px] font-bold text-[#D4AF37] tracking-[0.2em] uppercase">MAYA AI</h3>
+              <div className="flex items-center justify-between mb-4 md:mb-6">
+                <h3 className="text-[10px] md:text-[12px] font-bold text-[#D4AF37] tracking-[0.2em] uppercase">MAYA AI</h3>
                 <div className="w-2 h-2 rounded-full bg-[#D4AF37] shadow-[0_0_10px_#D4AF37] animate-pulse"></div>
               </div>
-              <div className="space-y-6 flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pr-2">
+              <div className="space-y-4 md:space-y-6 flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pr-2">
                 <div className="border-l-2 border-[#D4AF37]/30 pl-4 py-1">
                   {liveStatusMediaUrl && (
-                    liveStatusMediaUrl.toLowerCase().includes('.mp4') ? (
-                      <video src={liveStatusMediaUrl} autoPlay loop muted playsInline className="w-full aspect-video object-cover mb-4 rounded-lg shadow-[0_0_15px_rgba(212,175,55,0.1)] border border-white/5" />
-                    ) : (
-                      <img src={liveStatusMediaUrl} alt="MAYA AI Status" className="w-full aspect-video object-cover mb-4 rounded-lg shadow-[0_0_15px_rgba(212,175,55,0.1)] border border-white/5" onError={(e) => e.currentTarget.style.display = 'none'} />
-                    )
+                    <div className="w-full aspect-video overflow-hidden rounded-lg mb-4 shadow-[0_0_15px_rgba(212,175,55,0.1)] border border-white/5">
+                      {liveStatusMediaUrl.toLowerCase().includes('.mp4') ? (
+                        <video src={liveStatusMediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                      ) : (
+                        <img src={liveStatusMediaUrl} alt="MAYA AI Status" className="w-full h-full object-cover" onError={(e) => e.currentTarget.parentElement!.style.display = 'none'} />
+                      )}
+                    </div>
                   )}
-                  <h4 className="text-white font-medium text-lg mb-1">Smart Voice Assistant</h4>
-                  <p className="text-[13px] leading-relaxed text-white/70 mb-4">
+                  <h4 className="text-white font-medium text-base md:text-lg mb-1 tracking-tight">Smart Voice Assistant</h4>
+                  <p className="text-[12px] md:text-[13px] leading-relaxed text-white/70 mb-4">
                     MAYA AI is a next-generation voice assistant built for real-time conversations, creativity, and productivity.
                   </p>
                   <div className="flex flex-wrap gap-2 mb-4">
                     {['Real-Time AI', 'Voice Assistant', 'Fast Response', 'Creative Tools'].map(chip => (
-                      <span key={chip} className="text-[10px] uppercase tracking-wider px-2 py-1 bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20 rounded-full">
+                      <span key={chip} className="text-[9px] md:text-[10px] uppercase tracking-wider px-2 py-1 bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20 rounded-full">
                         • {chip}
                       </span>
                     ))}
                   </div>
-                  <p className="text-[12px] leading-relaxed text-[#D4AF37]/90 italic">{liveStatus}</p>
+                  <p className="text-[11px] md:text-[12px] leading-relaxed text-[#D4AF37]/90 italic font-medium">{liveStatus}</p>
                 </div>
               </div>
             </motion.div>
           </aside>
 
-          <main className="flex-1 flex flex-col justify-center gap-8 px-4 md:px-12 z-20">
-            <section className="relative transition-transform duration-1000 ease-out hover:scale-105" style={{ transformOrigin: "left center" }}>
+          <main className="flex-1 flex flex-col justify-center gap-8 px-0 md:px-12 z-20 py-12 lg:py-0">
+            <section className="relative transition-transform duration-1000 ease-out hover:md:scale-105" style={{ transformOrigin: "left center" }}>
               <motion.h2 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-[14px] uppercase tracking-[0.5em] text-[#D4AF37] mb-2 font-medium"
+                className="text-[10px] md:text-[14px] uppercase tracking-[0.3em] md:tracking-[0.5em] text-[#D4AF37] mb-2 font-medium"
               >
                 DIGITAL REALITY STUDIO
               </motion.h2>
@@ -190,7 +222,7 @@ export default function Home() {
                 variants={{
                   visible: { transition: { staggerChildren: 0.2 } },
                 }}
-                className="font-serif text-[120px] font-bold tracking-tighter leading-[0.8] mb-8 flex gap-8"
+                className="font-serif text-[40px] sm:text-[60px] md:text-[80px] lg:text-[120px] font-bold tracking-tighter leading-[0.8] mb-8 flex flex-col sm:flex-row sm:gap-8"
               >
                 {['MAYA', 'NAGRI'].map((word, i) => (
                   <motion.div
@@ -218,7 +250,7 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.8, duration: 1 }}
-                className="text-white/60 max-w-lg leading-relaxed text-lg"
+                className="text-white/60 max-w-lg leading-relaxed text-base md:text-lg"
               >
                 Building autonomous intelligence and cinematic digital ecosystems. Where architectural precision meets futuristic technology.
               </motion.p>
@@ -227,11 +259,11 @@ export default function Home() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 1, duration: 0.5 }}
-                className="mt-12"
+                className="mt-12 flex justify-center sm:justify-start"
               >
                 <div 
                   onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
-                  className="inline-block cursor-pointer px-10 py-4 bg-gradient-to-r from-[#D4AF37] to-[#FFD56B] text-black text-[12px] font-bold uppercase tracking-widest rounded-full shadow-[0_0_20px_rgba(212,175,55,0.4)] hover:shadow-[0_0_40px_rgba(212,175,55,0.6)] hover:scale-105 transition-all duration-300"
+                  className="inline-block cursor-pointer px-10 py-5 bg-gradient-to-r from-[#D4AF37] to-[#FFD56B] text-black text-[12px] font-bold uppercase tracking-widest rounded-full shadow-[0_0_20px_rgba(212,175,55,0.4)] hover:shadow-[0_0_40px_rgba(212,175,55,0.6)] hover:scale-105 transition-all duration-300 active:scale-95"
                 >
                   Enter Universe
                 </div>

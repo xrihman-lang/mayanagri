@@ -175,11 +175,11 @@ export default function Admin() {
       </div>
 
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl text-[#D4AF37] mb-8 font-serif tracking-wide">Control Room</h1>
+        <h1 className="text-2xl md:text-3xl text-[#D4AF37] mb-6 md:mb-8 font-serif tracking-wide">Control Room</h1>
         
-        <p className="text-white/50 mb-8 text-sm italic">Swipe down anywhere to return home.</p>
+        <p className="text-white/50 mb-6 md:mb-8 text-[11px] md:text-sm italic">Swipe down anywhere to return home.</p>
 
-        <div className="bg-white/5 p-6 rounded-2xl border border-white/10 mb-8 backdrop-blur-sm">
+        <div className="bg-white/5 p-4 md:p-6 rounded-2xl border border-white/10 mb-6 md:mb-8 backdrop-blur-sm">
           <h2 className="text-xl mb-4 font-medium tracking-wide">Edit Live Status</h2>
           <input 
             value={liveStatus}
@@ -193,31 +193,31 @@ export default function Admin() {
             onChange={(e) => setLiveStatusMediaUrl(e.target.value)}
             className="w-full p-3 mb-4 bg-black/50 border border-white/10 rounded-lg outline-none focus:border-[#D4AF37]/50 transition-colors"
           />
-          <button onClick={handleUpdateStatus} className="px-6 py-3 bg-gradient-to-r from-[#D4AF37] to-[#FFD56B] text-black font-bold uppercase rounded-lg hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all">Update Status</button>
+          <button onClick={handleUpdateStatus} className="w-full md:w-auto px-6 py-3.5 md:py-3 bg-gradient-to-r from-[#D4AF37] to-[#FFD56B] text-black font-bold uppercase rounded-lg hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all text-xs md:text-sm">Update Status</button>
         </div>
 
-        <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm mb-8">
+        <div className="bg-white/5 p-4 md:p-6 rounded-2xl border border-white/10 backdrop-blur-sm mb-6 md:mb-8">
           <h2 className="text-xl mb-4 font-medium tracking-wide">{editingId ? 'Edit Project' : 'Add Project (Website or App)'}</h2>
-          <div className="flex gap-4 mb-6">
-            <label className="flex items-center gap-2 cursor-pointer p-3 bg-black/30 rounded-lg border border-white/5 hover:border-white/20 transition-colors">
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <label className="flex items-center justify-center gap-2 cursor-pointer p-4 md:p-3 bg-black/30 rounded-lg border border-white/5 hover:border-white/20 transition-colors">
               <input type="radio" name="type" value="website" checked={projectType === 'website'} onChange={() => setProjectType('website')} className="accent-[#D4AF37] w-4 h-4" />
-              Website
+              <span className="text-sm">Website</span>
             </label>
-            <label className="flex items-center gap-2 cursor-pointer p-3 bg-black/30 rounded-lg border border-white/5 hover:border-white/20 transition-colors">
+            <label className="flex items-center justify-center gap-2 cursor-pointer p-4 md:p-3 bg-black/30 rounded-lg border border-white/5 hover:border-white/20 transition-colors">
               <input type="radio" name="type" value="app" checked={projectType === 'app'} onChange={() => setProjectType('app')} className="accent-[#D4AF37] w-4 h-4" />
-              App
+              <span className="text-sm">App</span>
             </label>
           </div>
-          <input placeholder="Name (Title)" value={projectName} onChange={(e) => setProjectName(e.target.value)} className="w-full p-3 mb-3 bg-black/50 border border-white/10 rounded-lg outline-none focus:border-[#D4AF37]/50 transition-colors" />
-          <textarea placeholder="Description" value={projectDescription} onChange={(e) => setProjectDescription(e.target.value)} className="w-full p-3 mb-3 bg-black/50 border border-white/10 rounded-lg min-h-[100px] outline-none focus:border-[#D4AF37]/50 transition-colors" />
-          <input placeholder="Media URL (Image or MP4)" value={projectImage} onChange={(e) => setProjectImage(e.target.value)} className="w-full p-3 mb-3 bg-black/50 border border-white/10 rounded-lg outline-none focus:border-[#D4AF37]/50 transition-colors" />
-          <input placeholder="Project Link" value={projectLink} onChange={(e) => setProjectLink(e.target.value)} className="w-full p-3 mb-6 bg-black/50 border border-white/10 rounded-lg outline-none focus:border-[#D4AF37]/50 transition-colors" />
-          <div className="flex gap-4">
-            <button onClick={handleSaveProject} className="px-6 py-3 bg-gradient-to-r from-[#D4AF37] to-[#FFD56B] text-black font-bold uppercase rounded-lg hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all">
+          <input placeholder="Name (Title)" value={projectName} onChange={(e) => setProjectName(e.target.value)} className="w-full p-4 md:p-3 mb-3 bg-black/50 border border-white/10 rounded-lg outline-none focus:border-[#D4AF37]/50 transition-colors text-sm md:text-base" />
+          <textarea placeholder="Description" value={projectDescription} onChange={(e) => setProjectDescription(e.target.value)} className="w-full p-4 md:p-3 mb-3 bg-black/50 border border-white/10 rounded-lg min-h-[120px] md:min-h-[100px] outline-none focus:border-[#D4AF37]/50 transition-colors text-sm md:text-base" />
+          <input placeholder="Media URL (Image or MP4)" value={projectImage} onChange={(e) => setProjectImage(e.target.value)} className="w-full p-4 md:p-3 mb-3 bg-black/50 border border-white/10 rounded-lg outline-none focus:border-[#D4AF37]/50 transition-colors text-sm md:text-base" />
+          <input placeholder="Project Link" value={projectLink} onChange={(e) => setProjectLink(e.target.value)} className="w-full p-4 md:p-3 mb-6 bg-black/50 border border-white/10 rounded-lg outline-none focus:border-[#D4AF37]/50 transition-colors text-sm md:text-base" />
+          <div className="flex flex-col md:flex-row gap-4">
+            <button onClick={handleSaveProject} className="w-full md:flex-1 px-6 py-4 md:py-3 bg-gradient-to-r from-[#D4AF37] to-[#FFD56B] text-black font-bold uppercase rounded-lg hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all text-xs md:text-sm">
               {editingId ? 'Update Project' : 'Add Project'}
             </button>
             {editingId && (
-              <button onClick={handleCancelEdit} className="px-6 py-3 bg-white/10 text-white font-bold uppercase rounded-lg hover:bg-white/20 transition-all border border-white/10">
+              <button onClick={handleCancelEdit} className="w-full md:w-auto px-6 py-4 md:py-3 bg-white/10 text-white font-bold uppercase rounded-lg hover:bg-white/20 transition-all border border-white/10 text-xs md:text-sm">
                 Cancel
               </button>
             )}
