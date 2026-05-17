@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import FeedbackModal from './FeedbackModal';
 
-export default function ProjectCard({ project }: { project: any }) {
+const ProjectCard: React.FC<{ project: any }> = ({ project }) => {
   const isVideo = project.image && project.image.toLowerCase().includes('.mp4');
   const validImage = project.image || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80';
   
@@ -60,4 +60,6 @@ export default function ProjectCard({ project }: { project: any }) {
       </motion.div>
     </>
   );
-}
+};
+
+export default ProjectCard;
