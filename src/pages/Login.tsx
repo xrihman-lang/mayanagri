@@ -8,7 +8,7 @@ export default function Login() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === 'zishan' && password === 'zishangdx') {
+    if (username === 'zishan' && password === 'zishan@001') {
       localStorage.setItem('isAdmin', 'true');
       navigate('/gdx-control-room');
     } else {
